@@ -1,0 +1,17 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#task, #answerInput, button{
+    box-sizing: border-box;
+    margin: 5px;
+    min-width: 20%;
+    height: 30px;
+    border: solid black 1px;
+}
+
