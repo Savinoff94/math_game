@@ -1,6 +1,34 @@
 class TaskMaster {
-    constructor(maxNumber){
-        this.maxNumber = maxNumber
+    constructor(typeOfTheGame){
+        switch(typeOfTheGame){
+            case 'faultless':
+                this.maxNumber = 20;
+                actionTypes = ['+', '-', '*', '/'];s
+                break;
+            case 'marathon':
+                this.maxNumber = 20;
+                actionTypes = ['+', '-', '*', '/'];
+                break;
+            case 'free':
+                this.maxNumber = 20;
+                actionTypes = ['+', '-', '*', '/'];
+                break;
+            case 'children':
+                this.maxNumber = 10;
+                actionTypes = ['+', '-', '*', '/'];
+                break;
+            case 'hard':
+                this.maxNumber = 20;
+                actionTypes = ['+', '-', '*', '/'];
+                break;
+            case 'multiplication table':
+                this.maxNumber = 20;
+                this.actionTypes = ['*', '/'];
+                break;
+            default:
+                console.log('typo in game type');
+                break;
+        }
     }
     maxNumber;
     firstOperand;
@@ -9,7 +37,7 @@ class TaskMaster {
     textTask;
     rightAnswer;
 
-    actionTypes = ['+', '-', '*', '/'];
+    actionTypes;
 
     setAction = () => {
         this.action = this.actionTypes[Math.floor(Math.random() * (this.actionTypes.length))];
@@ -100,6 +128,10 @@ class Clocks{
                 this.seconds = 0;
                 this.minutes = 0;
                 break;
+            case 'multiplication table':
+                this.seconds = 0;
+                this.minutes = 0;
+                break;
             default:
                 console.log('typo in game type');
                 break;
@@ -120,7 +152,6 @@ class Clocks{
 
     setClockText = () => {
         this.clockText = `${this.minutes < 10?'0'+this.minutes:this.minutes}:${this.seconds < 10?'0'+this.seconds:this.seconds}`;
-        console.log(this.clockText);
     }
 
     renderClocks = () => {
@@ -176,7 +207,7 @@ class Game {
         
         switch(this.typeOfTheGame){
             case "free":
-                this.taskObject = new TaskMaster(20);
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -184,7 +215,7 @@ class Game {
                 console.log('free');
                 break;
             case "marathon":
-                this.taskObject = new TaskMaster(20);
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -193,7 +224,7 @@ class Game {
                 console.log('marathon');
                 break;
             case "faultless":
-                this.taskObject = new TaskMaster(20);
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -202,7 +233,7 @@ class Game {
                 console.log("faultless");
                 break;
             case 'children':
-                this.taskObject = new TaskMaster(10);
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -211,7 +242,7 @@ class Game {
                 console.log("children");
                 break;
             case 'hard':
-                this.taskObject = new TaskMaster(20);
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -219,6 +250,23 @@ class Game {
                 this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
                 this.intervalHardMode = setInterval(this.submitHandler,3000);
                 console.log("children");
+            case 'hard':
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
+                this.clocks = new Clocks(this.typeOfTheGame);
+                this.renderGUI();
+                this.taskObject.giveTask();
+                this.timeoutGame = setTimeout(this.endGame,120000);
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
+                this.intervalHardMode = setInterval(this.submitHandler,3000);
+                console.log("children");
+            case "multiplication table":
+                this.taskObject = new TaskMaster(this.typeOfTheGame);
+                this.clocks = new Clocks(this.typeOfTheGame);
+                this.renderGUI();
+                this.taskObject.giveTask();
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
+                console.log('free');
+                break;
             default:
                 console.log('typo in game type');
                 break;
@@ -303,6 +351,8 @@ class Game {
                 break;
             case 'hard':
                 break;
+            case 'multiplication table':
+                break;
             default:
                 console.log('problems with this.typeOfTheGame',this.typeOfTheGame)
         }
@@ -368,7 +418,7 @@ class Game {
 
         this.createDataVisualisationBlock('span', 'Wrong answers: ', 'wrong');
 
-        if(this.typeOfTheGame !== 'faultless'){
+        if(this.typeOfTheGame !== 'faultless' && this.typeOfTheGame !== 'multiplication table'){
             this.createDataVisualisationBlock('span', 'Skipped answers: ', 'skipped');
 
             let buttonSkip = document.createElement('button');
