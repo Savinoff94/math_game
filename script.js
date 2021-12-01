@@ -70,6 +70,63 @@ class TaskMaster {
     }
 }
 
+class Clocks{
+    seconds;
+    minutes;
+    clockText;
+
+    constructor(typeOfTheGame){
+        switch(typeOfTheGame){
+            case 'faultless':
+                this.seconds = 0;
+                this.minutes = 2;
+                break;
+            case 'marathon':
+                this.seconds = 0;
+                this.minutes = 0;
+                break;
+            case 'free':
+                this.seconds = 0;
+                this.minutes = 0;
+                break;
+            default:
+                console.log('typo in game type');
+                break;
+        }
+    }
+
+    setMinute = () => {
+        ++this.minutes;
+    }
+
+    setSeconds = () => {
+        ++this.seconds;
+        if(this.seconds === 60){
+            this.seconds = 0;
+            this.setMinute();
+        }
+    }
+
+    setClockText = () => {
+        this.clockText = `${this.minutes < 10?'0'+this.minutes:this.minutes}:${this.seconds < 10?'0'+this.seconds:this.seconds}`;
+        console.log(this.clockText);
+    }
+
+    renderClocks = () => {
+        const div = document.createElement('div');
+        div.setAttribute('id', 'clocks');
+        this.setClockText();
+        div.innerText = this.clockText;
+        document.body.appendChild(div);
+    }
+
+    updateClocks = () => {
+        this.setSeconds();
+        this.setClockText();
+        document.getElementById('clocks').innerText = this.clockText;
+    }
+}
+
 class Game {
     typeOfTheGame;
     startGameTime;
@@ -78,29 +135,52 @@ class Game {
     skippedAnswers = 0;
     taskObject;
     logs = [];
+    clocks;
+    intervalClocks;
+    timeoutGame;
     
     setTypeOfTheGame =(typeOfTheGame) => {
         this.typeOfTheGame = typeOfTheGame;
     }
 
+    terminateClocks = () => {
+        if(this.intervalClocks !== null){
+            clearInterval(this.intervalClocks);
+        }
+    }
+
+    terminateTimeout = () => {
+        if(this.timeoutGame !== null){
+            clearTimeout(this.timeoutGame);
+        }
+    }
+
+
+
     play = () => {
         
         switch(this.typeOfTheGame){
             case "free":
+                this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
                 console.log('free');
                 break;
             case "marathon":
+                this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
                 this.startGameTime = Date.now();
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
                 console.log('marathon');
                 break;
             case "faultless":
+                this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
-                setInterval(this.endGame,120000);
+                this.timeoutGame = setTimeout(this.endGame,120000);
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
                 console.log("faultless");
                 break;
             default:
@@ -136,6 +216,10 @@ class Game {
             userAnswer,
             rightOrWrong
         })
+    }
+
+    getStartOfGameTime = () => {
+        return this.startGameTime;
     }
 
     getEndGameTime = () => {
@@ -202,6 +286,8 @@ class Game {
     }
 
     endGame = () => {
+        this.terminateClocks();
+        this.terminateTimeout();
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
         }
@@ -227,34 +313,30 @@ class Game {
         document.body.append(ul,buttonReload);
     }
 
-    renderGUI = () => {
-        let spanRightAnswers = document.createElement('span');
-        spanRightAnswers.innerText = 'Right answers: ';
-        let spanRightAnswersAns = document.createElement('span');
-        spanRightAnswersAns.innerText = '0';
-        spanRightAnswersAns.setAttribute('id','right');
-        document.body.append(spanRightAnswers,spanRightAnswersAns);
+    createDataVisualisationBlock = (tagName, TextField,id) => {
+        let textElement = document.createElement(tagName);
+        textElement.innerText = TextField;
+        let dataElement = document.createElement(tagName);
+        dataElement.innerText = '0';
+        dataElement.setAttribute('id',id);
+        document.body.append(textElement,dataElement);
+    }
 
-        let spanWrongAnswers = document.createElement('span');
-        spanWrongAnswers.innerText = 'Wrong answers: ';
-        let spanWrongAnswersAns = document.createElement('span');
-        spanWrongAnswersAns.innerText = '0';
-        spanWrongAnswersAns.setAttribute('id','wrong');
-        document.body.append(spanWrongAnswers,spanWrongAnswersAns);
+    renderGUI = () => {
+        this.clocks.renderClocks();
+        this.createDataVisualisationBlock('span', 'Right answers: ', 'right');
+
+        this.createDataVisualisationBlock('span', 'Wrong answers: ', 'wrong');
 
         if(this.typeOfTheGame !== 'faultless'){
-            let spanSkippedAnswers = document.createElement('span');
-            spanSkippedAnswers.innerText = 'Skipped answers:';
-            let spanSkippedAnswersAns = document.createElement('span');
-            spanSkippedAnswersAns.innerText = '0';
-            spanSkippedAnswersAns.setAttribute('id','skipped');
+            this.createDataVisualisationBlock('span', 'Skipped answers: ', 'skipped');
 
             let buttonSkip = document.createElement('button');
             buttonSkip.setAttribute('id','buttonSkip');
             buttonSkip.innerText = 'skip';
 
             buttonSkip.addEventListener('click', this.skiphandler);
-            document.body.append(spanSkippedAnswers,spanSkippedAnswersAns,buttonSkip);
+            document.body.append(buttonSkip);
         }
 
         let buttonClose = document.createElement('button');
