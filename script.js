@@ -1,5 +1,8 @@
 class TaskMaster {
-    maxNumber = 20;
+    constructor(maxNumber){
+        this.maxNumber = maxNumber
+    }
+    maxNumber;
     firstOperand;
     secondOperand;
     action;
@@ -89,6 +92,14 @@ class Clocks{
                 this.seconds = 0;
                 this.minutes = 0;
                 break;
+            case 'children':
+                this.seconds = 0;
+                this.minutes = 0;
+                break;
+            case 'hard':
+                this.seconds = 0;
+                this.minutes = 0;
+                break;
             default:
                 console.log('typo in game type');
                 break;
@@ -137,15 +148,19 @@ class Game {
     logs = [];
     clocks;
     intervalClocks;
+    intervalHardMode;
     timeoutGame;
     
     setTypeOfTheGame =(typeOfTheGame) => {
         this.typeOfTheGame = typeOfTheGame;
     }
 
-    terminateClocks = () => {
+    terminateIntervals = () => {
         if(this.intervalClocks !== null){
             clearInterval(this.intervalClocks);
+        }
+        if(this.intervalHardMode !== null){
+            clearInterval(this.intervalHardMode);
         }
     }
 
@@ -161,6 +176,7 @@ class Game {
         
         switch(this.typeOfTheGame){
             case "free":
+                this.taskObject = new TaskMaster(20);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -168,6 +184,7 @@ class Game {
                 console.log('free');
                 break;
             case "marathon":
+                this.taskObject = new TaskMaster(20);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -176,6 +193,7 @@ class Game {
                 console.log('marathon');
                 break;
             case "faultless":
+                this.taskObject = new TaskMaster(20);
                 this.clocks = new Clocks(this.typeOfTheGame);
                 this.renderGUI();
                 this.taskObject.giveTask();
@@ -183,6 +201,24 @@ class Game {
                 this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
                 console.log("faultless");
                 break;
+            case 'children':
+                this.taskObject = new TaskMaster(10);
+                this.clocks = new Clocks(this.typeOfTheGame);
+                this.renderGUI();
+                this.taskObject.giveTask();
+                this.timeoutGame = setTimeout(this.endGame,30000);
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
+                console.log("children");
+                break;
+            case 'hard':
+                this.taskObject = new TaskMaster(20);
+                this.clocks = new Clocks(this.typeOfTheGame);
+                this.renderGUI();
+                this.taskObject.giveTask();
+                this.timeoutGame = setTimeout(this.endGame,120000);
+                this.intervalClocks = setInterval(this.clocks.updateClocks,1000);
+                this.intervalHardMode = setInterval(this.submitHandler,3000);
+                console.log("children");
             default:
                 console.log('typo in game type');
                 break;
@@ -263,6 +299,10 @@ class Game {
                 break;
             case 'free':
                 break;
+            case 'children':
+                break;
+            case 'hard':
+                break;
             default:
                 console.log('problems with this.typeOfTheGame',this.typeOfTheGame)
         }
@@ -286,7 +326,7 @@ class Game {
     }
 
     endGame = () => {
-        this.terminateClocks();
+        this.terminateIntervals();
         this.terminateTimeout();
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
@@ -344,7 +384,7 @@ class Game {
         buttonClose.addEventListener('click',this.endGame)
 
         let task = document.createElement('div');
-        this.taskObject = new TaskMaster();
+        // this.taskObject = new TaskMaster();
         task.setAttribute('id','task');
 
         let answerInput = document.createElement('input');
